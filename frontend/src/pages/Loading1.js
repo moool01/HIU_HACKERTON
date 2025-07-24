@@ -149,6 +149,11 @@ const navBtnTextStyle = css`
   font-weight: 500;
 `;
 
+const bottomMargin20 = css`
+  margin-bottom: 20px;
+  color:#8D94A0;
+  font-weight: bold;
+`;
 const Component1 = () => {
 
       const navigate = useNavigate();
@@ -173,9 +178,11 @@ const Component1 = () => {
           </p>
         </b>
         <img className={imageStyle} alt="" src="/images/곰/기다려소방곰.png" />
+      <div className={bottomMargin20}>앞으로 4단계를 진행할 예정이에요!</div>
 		<div className={stepContainer}>
+      
           <div className={stepBox(0)}>
-            <div className={stepTitle}>1단계</div>
+            {/* <div className={stepTitle}>1단계</div> */}
             <div className={stepLabelBox}>
               <div className={stepLabelText}>
                 <div className={labelText}>집 주소 입력하기</div>
@@ -183,7 +190,7 @@ const Component1 = () => {
             </div>
           </div>
           <div className={stepBox(193)}>
-            <div className={stepTitle}>2단계</div>
+            {/* <div className={stepTitle}>2단계</div> */}
             <div className={stepLabelBox}>
               <div className={stepLabelText}>
                 <div className={labelText}>집 전개도 등록하기</div>
@@ -191,7 +198,7 @@ const Component1 = () => {
             </div>
           </div>
           <div className={stepBox(386)}>
-            <div className={stepTitle}>3단계</div>
+            {/* <div className={stepTitle}>3단계</div> */}
             <div className={stepLabelBox}>
               <div className={stepLabelText}>
                 <div className={labelText}>집 공간 스캔하기</div>
@@ -199,7 +206,7 @@ const Component1 = () => {
             </div>
           </div>
           <div className={stepBox(579)}>
-            <div className={stepTitle}>4단계</div>
+            {/* <div className={stepTitle}>4단계</div> */}
             <div className={stepLabelBox}>
               <div className={stepLabelText}>
                 <div className={labelText}>화재 요인 등록하기</div>

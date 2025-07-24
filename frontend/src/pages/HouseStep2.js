@@ -50,13 +50,15 @@ const sidebarHomeStyle = css`
   gap: 8px;
 `;
 
-const sidebarDescStyle = css`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  font-size: 24px;
-`;
+// const sidebarDescStyle = css`
+//   display: flex;
+//   flex-direction: column;
+//   gap: 24px;
+//   font-size: 24px;
+// `;
 
+const sidebarDescStyle = css`align-self: stretch; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 24px; font-size: 24px;relative; letter-spacing: -0.01em; line-height: 135%;`;
+// const sidebarDescStyle = css`align-self: stretch; position: relative; letter-spacing: -0.01em; line-height: 135%;`;
 const sidebarStepListStyle = css`
   display: flex;
   flex-direction: column;
@@ -273,91 +275,7 @@ const Loginstep2 = () => {
             <b>2</b><span className={stepTextStyle}>/4</span>
           </div>
 
-          <div className={canvasInstructionStyle}>
-            <b>집의 전개도를 그려주세요</b>
-            <div className={canvasGuideStyle}>*아래의 도형을 이용해 우리집의 전개도를 그려주세요</div>
-          </div>
-
-          <div className={canvasWrapperStyle}>
-            <div className={layoutCanvasStyle}>
-			<div
-				style={{
-				position: 'absolute',
-				height: '80px',
-				width: '110px',
-				top: '51.83%',
-				left: '11.44%',
-				backgroundColor: '#e0e0e0',
-				borderRadius: '4.14px',
-				border: '1px solid #ccc',
-				}}
-			/>
-			<div
-				style={{
-				position: 'absolute',
-				height: '88px',
-				width: '100px',
-				top: '31.56%',
-				left: '73.31%',
-				backgroundColor: '#e0e0e0',
-				borderRadius: '4.14px',
-				border: '1px solid #ccc',
-				}}
-			/>
-			<div
-				style={{
-				position: 'absolute',
-				height: '90px',
-				width: '190px',
-				top: '0%',
-				left: '45.45%',
-				backgroundColor: '#e0e0e0',
-				borderRadius: '4.14px',
-				border: '1px solid #ccc',
-				}}
-			/>
-			<div
-				style={{
-				position: 'absolute',
-				height: '145px',
-				width: '145px',
-				top: '0%',
-				left: '0%',
-				backgroundColor: '#e0e0e0',
-				borderRadius: '4.14px',
-				border: '1px solid #ccc',
-				}}
-			/>
-			<div
-				style={{
-				position: 'absolute',
-				height: '90px',
-				width: '90px',
-				top: '70.1%',
-				left: '73.31%',
-				backgroundColor: '#e0e0e0',
-				borderRadius: '3.11px',
-				border: '1px solid #ccc',
-				}}
-			/>
-			</div>
-			<div
-				style={{
-				position: 'absolute',
-				height: '186px',
-				width: '86px',
-				top: '33.56%',
-				left: '23%',
-				backgroundColor: '#e0e0e0',
-				borderRadius: '4.14px',
-				border: '1px solid #ccc',
-				}}
-			/>
-
-            <div className={cautionBoxStyle}>
-              * 모양만 선택 할수 있어요. 공간의 크기는 반영이 불가능해요.
-            </div>
-          </div>
+          
         </div>
 
         <div className={bottomNavStyle}>
