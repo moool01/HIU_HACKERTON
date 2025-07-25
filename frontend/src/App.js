@@ -5,7 +5,7 @@ import LoginStep1 from "./pages/LoginStep1";
 import LoginStep2 from "./pages/LoginStep2";
 import Loading1 from "./pages/Loading1";
 import Loading1_copy from "./pages/Loading1_copy";
-import Upload from "./pages/upload";
+import Upload1 from "./pages/Upload1";
 import Loading2 from "./pages/Loading2";
 import HouseStep1 from "./pages/HouseStep1";
 import HouseStep2 from "./pages/HouseStep2";
@@ -61,7 +61,7 @@ function App() {
         <Route path="/loginstep2" element={<LoginStep2 />} />
         <Route path="/loading1" element={<Loading1 />} />
         <Route path="/loading1_copy" element={<Loading1_copy />} />
-        <Route path="/upload" element={<Upload />} />
+        <Route path="/upload1" element={<Upload1 />} />
         <Route path="/loading2" element={<Loading2 />} />
         <Route path="/housestep1" element={<HouseStep1 />} />
         <Route path="/housestep2" element={<HouseStep2 />} />

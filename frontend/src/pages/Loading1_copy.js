@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 const ROOM_COUNT = 6;
 const TOOL_TYPES = Array.from({ length: ROOM_COUNT }, (_, i) => `room${i + 1}`);
-const GRID_SIZE = 25;
+const GRID_WIDTH = 30;
+const GRID_HEIGHT = 18;
 
 const wrapperStyle = css`
   padding: 20px;
