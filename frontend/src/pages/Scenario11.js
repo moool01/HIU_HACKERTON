@@ -211,7 +211,6 @@ const Component1 = () => {
   return (
     <div className={styles.container}>
       <img className={styles.backgroundImage} src="/images/시나리오/배경/콘센트시나리오기본배경.png" alt="" />
-
       <div className={styles.profileBox}>
         <img className={styles.profileImage} src="/images/시나리오/객체/프로필사진.png" alt="" />
         <div className={styles.profileTextBox}>

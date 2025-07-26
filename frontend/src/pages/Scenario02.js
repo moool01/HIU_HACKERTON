@@ -1,14 +1,27 @@
 import { css } from "@emotion/css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import LivingRoom from "../module/LivingRoom";
+import  LivingRoom1 from '../module/LivingRoom1';
+import MainRoom from '../module/MainRoom';
+import Kitchen from '../module/Kitchen';
+import FirePage from '../module/FirePage';
+import HamzzyRoom from '../module/HamzzyRoom';
+import Entrance from '../module/Entrance';
+import Out from '../module/Out';
+
 
 const styles = {
   container: css`
-    width: 100%;
+    width: 100vw;
+    height: 100vh;
+    min-height: 834px;
     position: relative;
-    background-color: #fefefe;
-    height: 834px;
-    overflow: hidden;
+    background-color: #363d47;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: left;
     font-size: 24px;
     color: #363d47;
@@ -71,6 +84,7 @@ const styles = {
     width: 404px;
     height: 404px;
     object-fit: cover;
+    z-index: 10; // 추가: VR 화면보다 높게
   `,
   headerTextBox: css`
     position: absolute;
@@ -135,6 +149,7 @@ const styles = {
     left: 40px;
     display: flex;
     flex-direction: column;
+    z-index: 10; // 추가: VR 화면보다 높게
   `,
   speechBubble: css`
     box-shadow: 0px 5px 8.2px rgba(0, 0, 0, 0.2);
@@ -143,10 +158,12 @@ const styles = {
     display: flex;
     justify-content: center;
     padding: 20px 30px;
+    z-index: 10; // 추가: VR 화면보다 높게
   `,
   speechText: css`
     letter-spacing: -0.01em;
     line-height: 135%;
+    z-index: 10; // 추가: VR 화면보다 높게
   `,
   triangleImage: css`
     width: 55.9px;
@@ -179,11 +196,11 @@ const styles = {
 
 const Component1 = () => {
 
-    const [showRetryMessage, setShowRetryMessage] = useState(false);
+  const [showRetryMessage, setShowRetryMessage] = useState(false);
   const navigate = useNavigate();
 
   const handleReadyClick = () => {
-    navigate("/scenario04_1");
+    navigate("/scenario03");
   };
 
   const handleNotSureClick = () => {
@@ -192,9 +209,9 @@ const Component1 = () => {
 
   return (
     <div className={styles.container}>
-      <img className={styles.backgroundImage} src="/images/시나리오/배경/콘센트시나리오pg2배경.png" alt="" />
-
-      <div className={styles.profileBox}>
+      <div style={{ width: "100vw", height: "80vh", position: "relative", zIndex: 1 }}>
+        <LivingRoom1 />
+      </div>      <div className={styles.profileBox}>
         <img className={styles.profileImage} src="/images/시나리오/객체/프로필사진.png" alt="" />
         <div className={styles.profileTextBox}>
           <div className={styles.profileName}>우리집 햄찌</div>
