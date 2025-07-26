@@ -1,5 +1,6 @@
 import { css } from "@emotion/css";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 const wrapperStyle = css`
   width: 100vw;
@@ -131,15 +132,18 @@ const navBtnStyle = css`
   padding: 14px 20px;
 `;
 
-const navBtnWithTextStyle = css`
+const navBtnWithTextStyle = (isActive) => css`
   border-radius: 6px;
-  background-color: #d6dbe2;
+  background-color: ${isActive ? "#FF643E" : "#d6dbe2"};
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   padding: 14px 20px;
+  cursor: ${isActive ? "pointer" : "default"};
+  transition: background-color 0.3s ease;
 `;
+
 
 const navBtnTextStyle = css`
   position: relative;
@@ -165,6 +169,16 @@ const Component1 = () => {
     const LoginStep1 = () => {
       navigate("/loginstep1");
     };
+    const [isNextActive, setIsNextActive] = useState(false);
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setIsNextActive(true); // 3초 뒤 활성화
+      }, 3000);
+
+      return () => clearTimeout(timer); // cleanup
+    }, []);
+
 
   return (
     <div className={wrapperStyle}>
@@ -218,7 +232,10 @@ const Component1 = () => {
           <div className={navBtnStyle} onClick={LoginStep1}>
             <div className={navBtnTextStyle}>다시하기</div>
           </div>
-          <div className={navBtnWithTextStyle }onClick={HouseStep1}>
+          <div
+            className={navBtnWithTextStyle(isNextActive)}
+            onClick={isNextActive ? HouseStep1 : undefined}
+          >
             <div className={navBtnTextStyle}>다음 →</div>
           </div>
         </div>
