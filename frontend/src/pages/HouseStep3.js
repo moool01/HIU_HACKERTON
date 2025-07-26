@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { css } from '@emotion/css';
 import { useNavigate } from 'react-router-dom';
-
+const SESSION_ID = 'session_' + new Date().toISOString().replace(/[-:.]/g, '').slice(0, 14);
 // 방별 색상
 const ROOM_COLORS = {
   room1: '#FFBEBE',
@@ -363,43 +363,45 @@ const HouseStep3 = () => {
   const handleImageUpload = async (type, file) => {
     if (!file) return;
 
-    // 기존 파일 삭제
-    const prev = roomImages[type];
-    if (prev && prev.filename) {
-      await fetch('http://localhost:3001/api/delete', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename: prev.filename }),
-      });
-    }
-
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('roomType', type);
+    formData.append('roomType', type); // 'room1', 'room2' 등
 
     try {
-      const response = await fetch('http://localhost:3001/api/upload', {
+      // 반드시 5000 포트 사용!
+      const response = await fetch('http://localhost:5050/api/upload', {
         method: 'POST',
         body: formData,
       });
 
-      if (response.ok) {
-        const result = await response.json();
+      // 응답이 JSON이 아닐 경우도 대비
+      let result = {};
+      try {
+        result = await response.json();
+      } catch {
+        const text = await response.text();
+        result = { raw: text };
+      }
+
+      if (response.ok && result.success) {
+        console.log('[✅ 업로드 성공]', result);
         setRoomImages((prev) => ({
           ...prev,
           [type]: {
             file,
             filename: result.filename,
             path: result.path,
-            originalName: result.originalName,
+            originalName: file.name,
           },
         }));
-        alert(`${type} 파일이 성공적으로 업로드되었습니다!`);
+        alert(`${type} 파일 업로드 및 처리 완료!`);
       } else {
-        alert('파일 업로드 실패');
+        console.error('[❌ 업로드 실패]', result);
+        alert('업로드 실패: ' + (result?.error || JSON.stringify(result)));
       }
-    } catch (error) {
-      alert('파일 업로드 중 오류가 발생했습니다.');
+    } catch (err) {
+      console.error('[❌ 네트워크 오류]', err);
+      alert('서버 연결 중 오류 발생: ' + err.message);
     }
   };
 

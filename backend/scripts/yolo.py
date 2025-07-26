@@ -78,9 +78,10 @@ def detect_objects_yolov5(image_path, model_path, output_dir, json_output_path=N
         print(f"[WARN] YOLO 결과 이미지 없음: {yolo_output_image}")
 
 if __name__ == "__main__":
+    print("[DEBUG] yolo.py 진입")
     image_path = sys.argv[1]
     model_path = sys.argv[2]
     output_dir = sys.argv[3]
+    print(f"[DEBUG] 인자 확인: {image_path}, {model_path}, {output_dir}")
     json_path = image_path.replace(".jpg", ".json")
-
     detect_objects_yolov5(image_path, model_path, output_dir, json_path)
