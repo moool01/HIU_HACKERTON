@@ -19,12 +19,19 @@ def upload_and_process():
     try:
         file = request.files.get('file')
         room_type = request.form.get('roomType', 'room')
+        session_id = request.form.get('session_id')  # ✅ 프론트에서 전달된 세션 ID
+
         if not file:
             return jsonify(success=False, error='파일이 없습니다.'), 400
 
-        # 1. 날짜 기반 세션/방 폴더 생성
-        date_str = datetime.now().strftime('%Y%m%d')
-        session_id = f"session_{date_str}_{uuid.uuid4().hex[:6]}"
+        # ✅ 세션 ID가 없으면 새로 생성
+        if not session_id:
+            date_str = datetime.now().strftime('%Y%m%d')
+            session_id = f"session_{date_str}_{uuid.uuid4().hex[:6]}"
+
+        print(f"[INFO] 사용 중인 session_id: {session_id}")
+
+        # 1. 방 디렉토리 생성
         room_dir = os.path.join(BACKEND_UPLOAD_DIR, session_id, room_type)
         os.makedirs(room_dir, exist_ok=True)
 
@@ -32,16 +39,15 @@ def upload_and_process():
         filename = secure_filename(file.filename)
         video_path = os.path.join(room_dir, filename)
         file.save(video_path)
-
         print(f"[UPLOAD] 저장된 비디오: {video_path}")
 
-        # 3. 결과 디렉토리 등 경로 계산
+        # 3. 처리에 필요한 경로
         frame_dir_abs = os.path.abspath(os.path.join(room_dir, 'frames'))
         stitched_path = os.path.abspath(os.path.join(room_dir, 'result_image.jpg'))
         equi_path = stitched_path.replace('result_image.jpg', 'result_equi.jpg')
         yolo_out = os.path.abspath(os.path.join(room_dir, 'yolo_output'))
 
-        # 4. 환경변수 dict 생성
+        # 4. 환경변수 설정
         env = os.environ.copy()
         env["PIPELINE_INPUT_VIDEO"] = os.path.abspath(video_path)
         env["PIPELINE_FRAME_DIR"] = frame_dir_abs
@@ -63,7 +69,14 @@ def upload_and_process():
         )
         print("[PIPELINE] 완료:", result.stdout)
 
-        return jsonify(success=True, message="파이프라인 완료", session_id=session_id)
+        return jsonify(
+            success=True,
+            message="파이프라인 완료",
+            session_id=session_id,
+            filename=filename,
+            room=room_type,
+            path=os.path.relpath(video_path, BACKEND_UPLOAD_DIR),
+        )
 
     except subprocess.CalledProcessError as e:
         print("[❌ 파이프라인 실패]")

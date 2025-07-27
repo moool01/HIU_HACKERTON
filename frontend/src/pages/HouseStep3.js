@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef } from 'react';
 import { css } from '@emotion/css';
 import { useNavigate } from 'react-router-dom';
+
 const SESSION_ID = 'session_' + new Date().toISOString().replace(/[-:.]/g, '').slice(0, 14);
 // 방별 색상
 const ROOM_COLORS = {
@@ -293,7 +294,14 @@ const HouseStep3 = () => {
   const [roomNames, setRoomNames] = useState({});
   const [roomImages, setRoomImages] = useState({});
   const [tempNames, setTempNames] = useState({});
+  const [sessionId] = useState(() => {
+  const stored = localStorage.getItem('session_id');
+    if (stored) return stored;
 
+    const newId = 'session_' + new Date().toISOString().replace(/[-:.]/g, '').slice(0, 8) + '_' + Math.random().toString(36).slice(2, 8);
+    localStorage.setItem('session_id', newId);
+    return newId;
+  });
   useEffect(() => {
     const saved = localStorage.getItem('roomMap');
     let parsed = {};
@@ -366,15 +374,14 @@ const HouseStep3 = () => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('roomType', type); // 'room1', 'room2' 등
+    formData.append('sessionId', sessionId); // 🔥 이미 선언된 sessionId 사용
 
     try {
-      // 반드시 5000 포트 사용!
       const response = await fetch('http://localhost:5050/api/upload', {
         method: 'POST',
         body: formData,
       });
 
-      // 응답이 JSON이 아닐 경우도 대비
       let result = {};
       try {
         result = await response.json();
