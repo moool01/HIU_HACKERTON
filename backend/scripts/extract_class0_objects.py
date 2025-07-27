@@ -76,17 +76,21 @@ def crop_and_save_objects_with_reverse_transform(image_path, class0_objects, out
 
         if ox2 > ox1 and oy2 > oy1:
             crop = orig_image[int(oy1):int(oy2), int(ox1):int(ox2)]
+
+            # ✅ 크기 고정: 너비 200, 높이 300
+            resized_crop = cv2.resize(crop, (200, 300), interpolation=cv2.INTER_AREA)
+
             out_path = os.path.join(output_dir, f"class0_object_{i+1}_from_original.jpg")
-            cv2.imwrite(out_path, crop)
+            cv2.imwrite(out_path, resized_crop)
             print(f"[SAVED] {out_path}")
         else:
             print(f"[WARNING] 잘못된 바운딩 박스: {ox1},{oy1},{ox2},{oy2}")
 
-def move_images_to_session_dir(output_dir, session_dir):
+def move_images_to_session_dir(output_dir, session_dir, session_id):
     """
-    extracted_class0_objects 안의 이미지들을 session_dir/거실문/ 으로 이동
+    extracted_class0_objects 안의 이미지들을 frontend/public/images/거실문/{session_id}/ 로 이동
     """
-    target_dir = os.path.join("frontend", "public", "images", "거실문","1")
+    target_dir = os.path.join("frontend", "public", "images", "거실문", session_id)
     os.makedirs(target_dir, exist_ok=True)
 
     moved_files = []
@@ -97,7 +101,7 @@ def move_images_to_session_dir(output_dir, session_dir):
             dst = os.path.join(target_dir, dst_name)
             shutil.move(src, dst)
             moved_files.append(dst_name)
-            print(f"[MOVE] {fname} → 거실문/{dst_name}")
+            print(f"[MOVE] {fname} → 거실문/{session_id}/{dst_name}")
 
     return moved_files
 
@@ -112,18 +116,21 @@ def run_object_extraction(session_dir):
 
     print(f"[INFO] 세션 디렉토리: {session_dir}")
 
+    # ✅ session_id 추출
+    session_id = os.path.basename(os.path.dirname(session_dir))
+
     objects = parse_yolo_labels(label_file)
     if not objects:
         return {"success": False, "message": "클래스 0 객체 없음", "files": []}
 
     crop_and_save_objects_with_reverse_transform(orig_img, objects, output_dir, equi_img)
-    moved = move_images_to_session_dir(output_dir, session_dir)
+    moved = move_images_to_session_dir(output_dir, session_dir, session_id)
 
     return {
         "success": True,
         "message": f"{len(moved)}개 객체 저장 완료",
         "files": moved,
-        "output_path": os.path.join(session_dir, "거실문")
+        "output_path": os.path.join("frontend", "public", "images", "거실문", session_id)
     }
 
 if __name__ == "__main__":

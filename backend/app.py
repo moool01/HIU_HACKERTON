@@ -19,12 +19,11 @@ def upload_and_process():
     try:
         file = request.files.get('file')
         room_type = request.form.get('roomType', 'room')
-        session_id = request.form.get('session_id')  # ✅ 프론트에서 전달된 세션 ID
+        session_id = request.form.get('sessionId')  # ✅ 수정된 부분
 
         if not file:
             return jsonify(success=False, error='파일이 없습니다.'), 400
 
-        # ✅ 세션 ID가 없으면 새로 생성
         if not session_id:
             date_str = datetime.now().strftime('%Y%m%d')
             session_id = f"session_{date_str}_{uuid.uuid4().hex[:6]}"
