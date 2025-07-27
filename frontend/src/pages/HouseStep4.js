@@ -1,6 +1,7 @@
 // ✅ 스타일 정의
 import { css } from "@emotion/css";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 const styles = {
   span: css`
@@ -80,6 +81,26 @@ const styles = {
     justify-content: center;
     padding: 6.3px 9.4px;
     gap: 4.7px;
+  `,
+  roomNameInput: css`
+    width: 140px;
+    border-radius: 4.36px;
+    background-color: #fefefe;
+    border: 0.8px solid #8d94a0;
+    box-sizing: border-box;
+    padding: 6.3px 9.4px;
+    font-size: 10.18px;
+    color: #2098f3;
+    text-align: center;
+    outline: none;
+    
+    &:focus {
+      border-color: #2098f3;
+    }
+    
+    &::placeholder {
+      color: #8d94a0;
+    }
   `,
   image18Parent: css`
     width: 185px;
@@ -347,11 +368,142 @@ const styles = {
 };
 const Step024 = () => {
   const navigate = useNavigate();
+  const [extractedImages, setExtractedImages] = useState([]);
+  const [roomNames, setRoomNames] = useState({});
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    // 가장 최근 거실문 폴더에서 이미지들을 동적으로 찾기
+    const loadImages = async () => {
+      // 상태 초기화
+      setExtractedImages([]);
+      setRoomNames({});
+      setLoading(true);
+      
+      try {
+        const imageBasePath = `/images/거실문/`;
+        const imageFiles = [];
+        const timestamp = Date.now();
+        
+        console.log('[DEBUG] 이미지 로딩 시작');
+        
+        // 역순으로 폴더를 확인하여 가장 최신 폴더 찾기 (더 확실한 방법)
+        let maxFolderNum = 0;
+        for (let i = 20; i >= 1; i--) { // 20부터 1까지 역순으로 확인
+          try {
+            const testPath = `${imageBasePath}${i}/문1.jpg?cache=${timestamp}`;
+            const response = await fetch(testPath, { 
+              method: 'HEAD',
+              cache: 'no-cache',
+              headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+              }
+            });
+            
+            // Content-Type과 Content-Length 모두 확인
+            const contentType = response.headers.get('Content-Type');
+            const contentLength = response.headers.get('Content-Length');
+            
+            if (response.ok && response.status === 200 && 
+                contentType && contentType.startsWith('image/') &&
+                contentLength && parseInt(contentLength) > 1000) { // 1KB 이상인 실제 이미지 파일
+              maxFolderNum = i;
+              console.log(`[DEBUG] 폴더 ${i} 존재함 (Type: ${contentType}, Size: ${contentLength}bytes)`);
+              break; // 첫 번째로 발견된 폴더가 최신 폴더
+            } else {
+              console.log(`[DEBUG] 폴더 ${i} 없음 (status: ${response.status}, type: ${contentType}, size: ${contentLength})`);
+            }
+          } catch (error) {
+            console.log(`[DEBUG] 폴더 ${i} 에러:`, error.message);
+            continue;
+          }
+        }
+        
+        console.log(`[DEBUG] 최대 폴더 번호: ${maxFolderNum}`);
+        
+        if (maxFolderNum > 0) {
+          // 가장 최근 폴더에서 이미지들 찾기
+          const folderPath = `${imageBasePath}${maxFolderNum}/`;
+          for (let i = 1; i <= 10; i++) { // 최대 10개 이미지까지 확인
+            const imagePath = `${folderPath}문${i}.jpg?cache=${timestamp}`;
+            const cleanPath = `${folderPath}문${i}.jpg`; // 캐시 쿼리 없는 깨끗한 경로
+            
+            try {
+              const response = await fetch(imagePath, { 
+                method: 'HEAD',
+                cache: 'no-cache',
+                headers: {
+                  'Cache-Control': 'no-cache, no-store, must-revalidate',
+                  'Pragma': 'no-cache',
+                  'Expires': '0'
+                }
+              });
+              
+              // Content-Type과 Content-Length 모두 확인하여 실제 이미지인지 판단
+              const contentType = response.headers.get('Content-Type');
+              const contentLength = response.headers.get('Content-Length');
+              
+              if (response.ok && response.status === 200 && 
+                  contentType && contentType.startsWith('image/') &&
+                  contentLength && parseInt(contentLength) > 1000) { // 1KB 이상인 실제 이미지 파일
+                imageFiles.push(cleanPath);
+                console.log(`[DEBUG] 이미지 추가: ${cleanPath} (${contentType}, ${contentLength}bytes)`);
+              } else {
+                console.log(`[DEBUG] 파일 없음: ${cleanPath}, status: ${response.status}, type: ${contentType}, size: ${contentLength}`);
+                break; // 파일이 없으면 중단
+              }
+            } catch (error) {
+              console.log(`[DEBUG] 에러 발생: ${cleanPath}`, error.message);
+              break; // 파일이 없으면 중단
+            }
+          }
+        }
+        
+        console.log(`[DEBUG] 최종 이미지 개수: ${imageFiles.length}`);
+        console.log(`[DEBUG] 이미지 목록:`, imageFiles);
+        
+        if (imageFiles.length > 0) {
+          setExtractedImages(imageFiles);
+          
+          // 각 이미지에 대한 초기 방 이름 설정
+          const initialNames = {};
+          imageFiles.forEach((img, index) => {
+            initialNames[index] = '';
+          });
+          setRoomNames(initialNames);
+        } else {
+          // 파일이 없으면 빈 배열 설정
+          setExtractedImages([]);
+          setRoomNames({});
+        }
+      } catch (error) {
+        console.error('[ERROR] 이미지 로딩 오류:', error);
+        setExtractedImages([]);
+        setRoomNames({});
+      }
+      
+      setLoading(false);
+    };
+    
+    loadImages();
+  }, []);
+  
+  const handleRoomNameChange = (index, value) => {
+    setRoomNames(prev => ({
+      ...prev,
+      [index]: value
+    }));
+  };
+  
   const HouseStep3 = () => {
       navigate("/housestep3");
     };
   
     const HouseStep5 = () => {
+      // 방 이름들을 다음 단계로 전달할 수 있음
+      console.log('설정된 방 이름들:', roomNames);
       navigate("/housestep5");
     };
 
@@ -379,30 +531,33 @@ const Step024 = () => {
         </div>
 
         <div className={styles.frameParent}>
-          <div className={styles.image18Parent}>
-            <img className={styles.image18Icon} alt="" src="image 18.png" />
-            <div className={styles.guardianRelationshipLabelParent}>
-              <div className={styles.nextButtonLabel}>연결된 방 이름</div>
+          {loading ? (
+            <div>이미지를 불러오는 중...</div>
+          ) : extractedImages.length > 0 ? (
+            extractedImages.map((imageUrl, index) => (
+              <div key={index} className={styles.image18Parent}>
+                <img 
+                  className={styles.image18Icon} 
+                  alt={`문 ${index + 1}`} 
+                  src={imageUrl}
+                />
+                <input
+                  className={styles.roomNameInput}
+                  type="text"
+                  placeholder="연결된 방 이름"
+                  value={roomNames[index] || ''}
+                  onChange={(e) => handleRoomNameChange(index, e.target.value)}
+                />
+              </div>
+            ))
+          ) : (
+            <div className={styles.image18Parent}>
+              <img className={styles.image18Icon} alt="" src="image 18.png" />
+              <div className={styles.guardianRelationshipLabelParent}>
+                <div className={styles.nextButtonLabel}>연결된 방 이름</div>
+              </div>
             </div>
-          </div>
-          <div className={styles.image20Parent}>
-            <img className={styles.image18Icon} alt="" src="image 20.png" />
-            <div className={styles.guardianRelationshipLabelParent}>
-              <div className={styles.nextButtonLabel}>연결된 방 이름</div>
-            </div>
-          </div>
-          <div className={styles.image18Parent}>
-            <img className={styles.image18Icon} alt="" src="image 21.png" />
-            <div className={styles.guardianRelationshipLabelParent}>
-              <div className={styles.nextButtonLabel}>연결된 방 이름</div>
-            </div>
-          </div>
-          <div className={styles.image19Parent}>
-            <img className={styles.image18Icon} alt="" src="image 19.png" />
-            <div className={styles.guardianRelationshipLabelParent}>
-              <div className={styles.nextButtonLabel}>연결된 방 이름</div>
-            </div>
-          </div>
+          )}
         </div>
 
         <div className={styles.navigation}>
@@ -423,7 +578,7 @@ const Step024 = () => {
             </div>
             <div className={styles.sidebarMessageContainer}>
               <b className={styles.guardianInfoHeader}>
-                거실에서는 4개의 문이 인식되었어요! 각 문이 어느 방과 연결되어있는지 선택해주세요
+                거실에서는 {extractedImages.length}개의 문이 인식되었어요! 각 문이 어느 방과 연결되어있는지 선택해주세요
               </b>
               <img className={styles.icon4} alt="" src="/images/곰/촬영소방곰.png" />
             </div>

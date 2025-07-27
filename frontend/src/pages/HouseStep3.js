@@ -374,7 +374,7 @@ const HouseStep3 = () => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('roomType', type); // 'room1', 'room2' 등
-    formData.append('session_id', sessionId); // ✅ 유지된 세션 아이디 사용
+    formData.append('sessionId', sessionId); // 🔥 이미 선언된 sessionId 사용
 
     try {
       const response = await fetch('http://localhost:5050/api/upload', {
