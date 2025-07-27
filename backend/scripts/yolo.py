@@ -68,12 +68,12 @@ def detect_objects_yolov5(image_path, model_path, output_dir, json_output_path=N
         print(f"[INFO] 탐지 JSON 저장 → {json_output_path}")
         print(f"[INFO] 탐지된 객체 수: {len(detections)}")
 
-    # ✅ 박스가 그려진 이미지도 result/에 복사
+    # ✅ 박스가 그려진 이미지를 result/에 별도 이름으로 저장
     yolo_output_image = os.path.join(output_dir, image_filename + ".jpg")
-    final_output_image = os.path.join(project_dir, image_filename + ".jpg")
+    final_output_image = os.path.join(project_dir, image_filename + "_with_boxes.jpg")
     if os.path.exists(yolo_output_image):
         shutil.copy(yolo_output_image, final_output_image)
-        print(f"[INFO] 최종 이미지 복사 완료 → {final_output_image}")
+        print(f"[INFO] 박스 이미지 복사 완료 → {final_output_image}")
     else:
         print(f"[WARN] YOLO 결과 이미지 없음: {yolo_output_image}")
 
