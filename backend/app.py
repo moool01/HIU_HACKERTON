@@ -7,9 +7,8 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 import uuid
 
-# ⚠️ static_folder는 Docker 기준에서 절대 경로로 지정
-FRONTEND_BUILD_PATH = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'build')
-app = Flask(__name__, static_folder=FRONTEND_BUILD_PATH)
+# React build 경로 지정
+app = Flask(__name__, static_folder="../frontend/build")
 CORS(app)
 
 # 업로드 루트 디렉토리
@@ -102,9 +101,5 @@ def serve_static(path):
     return send_from_directory(app.static_folder, path)
 
 if __name__ == '__main__':
-    # ✅ Railway 호환을 위해 PORT 환경변수 활용
     port = int(os.environ.get("PORT", 5050))
-    app.run(debug=True, host="0.0.0.0", port=port)
-
-if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port=5050)
+    app.run(host='0.0.0.0', port=port)
