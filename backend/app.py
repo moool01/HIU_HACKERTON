@@ -10,7 +10,7 @@ import uuid
 # ⚠️ static_folder는 Docker 기준에서 절대 경로로 지정
 FRONTEND_BUILD_PATH = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'build')
 app = Flask(__name__, static_folder=FRONTEND_BUILD_PATH)
-CORS(app)
+CORS(app, supports_credentials=True, origins="*")
 
 # 업로드 루트 디렉토리
 BACKEND_UPLOAD_DIR = os.path.join(os.path.dirname(__file__), 'uploads')
@@ -106,5 +106,3 @@ if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5050))
     app.run(debug=True, host="0.0.0.0", port=port)
 
-if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port=5050)

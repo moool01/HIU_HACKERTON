@@ -9,7 +9,7 @@ import HamzzyRoom1 from '../module/HamzzyRoom1';
 import Entrance from '../module/Entrance2';
 import Out from '../module/Out';
 import SampleVR from '../module/SampleVR';
-
+import { useLocation } from "react-router-dom";
 const styles = {
   container: css`
     width: 100vw;
@@ -194,41 +194,56 @@ const styles = {
 };
 
 const Component1 = () => {
-
   const [showRetryMessage, setShowRetryMessage] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // location.state가 없을 경우 대비
+  const sessionId = location.state?.sessionId || localStorage.getItem('sessionId');
+  const roomType = location.state?.roomType || localStorage.getItem('roomType');
+
+  // 필수 값이 없을 경우 초기 화면으로 되돌리기
+  if (!sessionId || !roomType) {
+    return (
+      <div className={styles.container}>
+        <div style={{ color: "white" }}>❗세션 정보가 없습니다. 다시 시도해주세요.</div>
+        <div className={styles.buttonOrange} onClick={() => navigate("/HouseStep5")}>
+          <div className={styles.stepText}>뒤로 가기</div>
+        </div>
+      </div>
+    );
+  }
+
+  // sessionId와 roomType을 localStorage에 저장 (새로고침 대비)
+  localStorage.setItem("sessionId", sessionId);
+  localStorage.setItem("roomType", roomType);
 
   const handleReadyClick = () => {
     navigate("/HouseStep5");
   };
 
-  // const handleNotSureClick = () => {
-  //   setShowRetryMessage(true);
-  // };
-
   return (
     <div className={styles.container}>
       <div style={{ width: "100vw", height: "80vh", position: "relative", zIndex: 1 }}>
-        <SampleVR />
+        <SampleVR sessionId={sessionId} roomType={roomType} />
       </div>
 
-      <img className={styles.bottomImage} src="/images/시나리오/소방곰/404돋보기소방곰.png" alt="" />
+      <img
+        className={styles.bottomImage}
+        src="/images/시나리오/소방곰/404돋보기소방곰.png"
+        alt=""
+      />
 
       <div className={styles.headerTextBox}>
         <b className={styles.headerTitle}>VR 미리보기 체험</b>
       </div>
 
       <div className={styles.buttonWrapper}>
-        {/* <div className={styles.buttonGray} onClick={handleNotSureClick}>
-          <div className={styles.stepText}>닫혀있어</div>
-        </div> */}
         <div className={styles.buttonOrange} onClick={handleReadyClick}>
           <div className={styles.stepText}>뒤로 가기</div>
         </div>
       </div>
-
-
-      </div>
+    </div>
   );
 };
 

@@ -1,5 +1,6 @@
+
+
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 // 라벨 파싱 함수
 function parseLabels(text) {
@@ -17,18 +18,20 @@ function isInsideBox(yaw, pitch, box) {
   return Math.abs(yaw - byaw) < w / 2 && Math.abs(pitch - bpitch) < h / 2;
 }
 
-const SampleVR = () => {
+const SampleVR = ({ sessionId, roomType }) => {  // ✅ props로 받기
   const pannellumRef = useRef(null);
   const [boxes, setBoxes] = useState([]);
-  const navigate = useNavigate();
-
-
 
   useEffect(() => {
+    if (!sessionId || !roomType) {
+      console.error("❌ SampleVR: sessionId 또는 roomType이 정의되지 않았습니다.");
+      return;
+    }
+
     if (!window.pannellum) return;
     const viewer = window.pannellum.viewer('sampleVR-pan', {
       type: "equirectangular",
-      panorama: process.env.PUBLIC_URL + "/result/sampleVR.jpg", // VR 이미지 경로(2:1 비율 VR 이미지)
+      panorama: `http://${window.location.hostname}:5050/uploads/${sessionId}/${roomType}/result_equi.jpg`,
       autoLoad: true,
       hfov: 120,
       minHfov: 60,
@@ -37,29 +40,15 @@ const SampleVR = () => {
       yaw: 0,
       compass: true,
       autoRotate: 0,
-      minPitch: -50, // 아래로 최대 각도 (기본값: -90)
-      maxPitch: 50,  // 위로 최대 각도 (기본값: 90)
+      minPitch: -50,
+      maxPitch: 50,
     });
 
-    let downCoords = null;
-
-    viewer.on('mousedown', function (e) {
-      downCoords = viewer.mouseEventToCoords(e);
-    });
-
-    viewer.on('mouseup', function (e) {
-      const upCoords = viewer.mouseEventToCoords(e);
-      if (!downCoords || !upCoords) return;
-      const [upPitch, upYaw] = upCoords;
-      let found = false;
-    });
-
-    // cleanup
     return () => {
       const panDiv = document.getElementById('sampleVR-pan');
       if (panDiv) panDiv.innerHTML = '';
     };
-  }, [boxes, navigate]);
+  }, [sessionId, roomType]);
 
   return (
     <div>
@@ -73,3 +62,4 @@ const SampleVR = () => {
 };
 
 export default SampleVR;
+

@@ -1,7 +1,7 @@
 import React, { useEffect, useState,useRef } from 'react';
 import { css } from '@emotion/css';
 import { useNavigate } from 'react-router-dom';
-
+import axios from "axios";
 const SESSION_ID = 'session_' + new Date().toISOString().replace(/[-:.]/g, '').slice(0, 14);
 // 방별 색상
 const ROOM_COLORS = {
@@ -377,20 +377,19 @@ const HouseStep3 = () => {
     formData.append('sessionId', sessionId); // 🔥 이미 선언된 sessionId 사용
 
     try {
-      const response = await fetch('http://localhost:5050/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
+      const response = await axios.post(
+        'http://192.168.0.70:5050/api/upload',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
 
-      let result = {};
-      try {
-        result = await response.json();
-      } catch {
-        const text = await response.text();
-        result = { raw: text };
-      }
+      const result = response.data;
 
-      if (response.ok && result.success) {
+      if (response.status === 200 && result.success) {
         console.log('[✅ 업로드 성공]', result);
         setRoomImages((prev) => ({
           ...prev,

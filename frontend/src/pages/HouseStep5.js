@@ -1,7 +1,7 @@
 import React, { useEffect, useState,useRef } from 'react';
 import { css } from '@emotion/css';
 import { useNavigate } from 'react-router-dom';
-
+import { useLocation } from "react-router-dom";
 const SESSION_ID = 'session_' + new Date().toISOString().replace(/[-:.]/g, '').slice(0, 14);
 // 방별 색상
 const ROOM_COLORS = {
@@ -578,45 +578,46 @@ const HouseStep5 = () => {
               />
             )}
 
-            {/* 파일 선택 버튼 */}
+            {/* VR 보기 버튼 */}
             <button
+              style={{
+                width: '70px',
+                height: '28px',
+                border: 'none',
+                borderRadius: '4px',
+                background: '#2098f3',
+                color: 'white',
+                fontSize: '10px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '3px',
+                transition: 'all 0.2s',
+              }}
+              onClick={() => {
+                const roomType = type;
+                navigate("/HouseStep501", { state: { sessionId, roomType } });
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = '#127bd1';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = '#2098f3';
+              }}
+            >
+              <img
+                src="/images/아이콘/vr.png"
+                alt=""
                 style={{
-                  width: '70px',
-                  height: '28px',
-                  border: 'none',
-                  borderRadius: '4px',
-                  background: '#2098f3',
-                  color: 'white',
-                  fontSize: '10px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '3px',
-                  transition: 'all 0.2s',
+                  width: '12px',
+                  height: '12px',
+                  filter: 'brightness(0) invert(1)',
                 }}
-                onClick={() => {
-                  navigate(`/HouseStep501`);
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = '#127bd1';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = '#2098f3';
-                }}
-              >
-                <img
-                  src="/images/아이콘/vr.png"
-                  alt=""
-                  style={{
-                    width: '12px',
-                    height: '12px',
-                    filter: 'brightness(0) invert(1)',
-                  }}
-                />
-                <span>VR 보기</span>
-              </button>
+              />
+              <span>VR 보기</span>
+            </button>
 
             <input
               id={`file-${type}`}
