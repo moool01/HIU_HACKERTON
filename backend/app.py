@@ -7,7 +7,9 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 import uuid
 
-app = Flask(__name__)
+# ⚠️ static_folder는 Docker 기준에서 절대 경로로 지정
+FRONTEND_BUILD_PATH = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'build')
+app = Flask(__name__, static_folder=FRONTEND_BUILD_PATH)
 CORS(app)
 
 # 업로드 루트 디렉토리
@@ -19,12 +21,11 @@ def upload_and_process():
     try:
         file = request.files.get('file')
         room_type = request.form.get('roomType', 'room')
-        session_id = request.form.get('session_id')  # ✅ 프론트에서 전달된 세션 ID
+        session_id = request.form.get('sessionId')  # ✅ 수정된 부분
 
         if not file:
             return jsonify(success=False, error='파일이 없습니다.'), 400
 
-        # ✅ 세션 ID가 없으면 새로 생성
         if not session_id:
             date_str = datetime.now().strftime('%Y%m%d')
             session_id = f"session_{date_str}_{uuid.uuid4().hex[:6]}"
@@ -91,6 +92,19 @@ def upload_and_process():
 @app.route('/uploads/<path:filename>')
 def serve_file(filename):
     return send_from_directory(BACKEND_UPLOAD_DIR, filename)
+
+@app.route("/")
+def index():
+    return send_from_directory(app.static_folder, "index.html")
+
+@app.route("/<path:path>")
+def serve_static(path):
+    return send_from_directory(app.static_folder, path)
+
+if __name__ == '__main__':
+    # ✅ Railway 호환을 위해 PORT 환경변수 활용
+    port = int(os.environ.get("PORT", 5050))
+    app.run(debug=True, host="0.0.0.0", port=port)
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5050)

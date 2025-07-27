@@ -373,120 +373,72 @@ const Step024 = () => {
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    // 가장 최근 거실문 폴더에서 이미지들을 동적으로 찾기
     const loadImages = async () => {
-      // 상태 초기화
+      let sid = localStorage.getItem("session_id");
+      if (!sid) {
+        const date = new Date();
+        const dateStr = date.toISOString().slice(0, 10).replace(/-/g, "");
+        const random = Math.random().toString(36).substring(2, 8);
+        sid = `session_${dateStr}_${random}`;
+        localStorage.setItem("session_id", sid);
+      }
+
       setExtractedImages([]);
       setRoomNames({});
       setLoading(true);
-      
+
       try {
-        const imageBasePath = `/images/거실문/`;
+        const imageBasePath = `/images/거실문/${sid}/`;
         const imageFiles = [];
         const timestamp = Date.now();
-        
-        console.log('[DEBUG] 이미지 로딩 시작');
-        
-        // 역순으로 폴더를 확인하여 가장 최신 폴더 찾기 (더 확실한 방법)
-        let maxFolderNum = 0;
-        for (let i = 20; i >= 1; i--) { // 20부터 1까지 역순으로 확인
+
+        // 최대 10개 이미지까지 탐색
+        for (let i = 1; i <= 10; i++) {
+          const imagePath = `${imageBasePath}문${i}.jpg?cache=${timestamp}`;
+          const cleanPath = `${imageBasePath}문${i}.jpg`;
+
           try {
-            const testPath = `${imageBasePath}${i}/문1.jpg?cache=${timestamp}`;
-            const response = await fetch(testPath, { 
+            const response = await fetch(imagePath, {
               method: 'HEAD',
               cache: 'no-cache',
               headers: {
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
                 'Pragma': 'no-cache',
-                'Expires': '0'
-              }
+                'Expires': '0',
+              },
             });
-            
-            // Content-Type과 Content-Length 모두 확인
+
             const contentType = response.headers.get('Content-Type');
             const contentLength = response.headers.get('Content-Length');
-            
-            if (response.ok && response.status === 200 && 
-                contentType && contentType.startsWith('image/') &&
-                contentLength && parseInt(contentLength) > 1000) { // 1KB 이상인 실제 이미지 파일
-              maxFolderNum = i;
-              console.log(`[DEBUG] 폴더 ${i} 존재함 (Type: ${contentType}, Size: ${contentLength}bytes)`);
-              break; // 첫 번째로 발견된 폴더가 최신 폴더
+
+            if (
+              response.ok &&
+              response.status === 200 &&
+              contentType?.startsWith("image/") &&
+              parseInt(contentLength || "0") > 1000
+            ) {
+              imageFiles.push(cleanPath);
             } else {
-              console.log(`[DEBUG] 폴더 ${i} 없음 (status: ${response.status}, type: ${contentType}, size: ${contentLength})`);
+              break;
             }
           } catch (error) {
-            console.log(`[DEBUG] 폴더 ${i} 에러:`, error.message);
-            continue;
+            break;
           }
         }
-        
-        console.log(`[DEBUG] 최대 폴더 번호: ${maxFolderNum}`);
-        
-        if (maxFolderNum > 0) {
-          // 가장 최근 폴더에서 이미지들 찾기
-          const folderPath = `${imageBasePath}${maxFolderNum}/`;
-          for (let i = 1; i <= 10; i++) { // 최대 10개 이미지까지 확인
-            const imagePath = `${folderPath}문${i}.jpg?cache=${timestamp}`;
-            const cleanPath = `${folderPath}문${i}.jpg`; // 캐시 쿼리 없는 깨끗한 경로
-            
-            try {
-              const response = await fetch(imagePath, { 
-                method: 'HEAD',
-                cache: 'no-cache',
-                headers: {
-                  'Cache-Control': 'no-cache, no-store, must-revalidate',
-                  'Pragma': 'no-cache',
-                  'Expires': '0'
-                }
-              });
-              
-              // Content-Type과 Content-Length 모두 확인하여 실제 이미지인지 판단
-              const contentType = response.headers.get('Content-Type');
-              const contentLength = response.headers.get('Content-Length');
-              
-              if (response.ok && response.status === 200 && 
-                  contentType && contentType.startsWith('image/') &&
-                  contentLength && parseInt(contentLength) > 1000) { // 1KB 이상인 실제 이미지 파일
-                imageFiles.push(cleanPath);
-                console.log(`[DEBUG] 이미지 추가: ${cleanPath} (${contentType}, ${contentLength}bytes)`);
-              } else {
-                console.log(`[DEBUG] 파일 없음: ${cleanPath}, status: ${response.status}, type: ${contentType}, size: ${contentLength}`);
-                break; // 파일이 없으면 중단
-              }
-            } catch (error) {
-              console.log(`[DEBUG] 에러 발생: ${cleanPath}`, error.message);
-              break; // 파일이 없으면 중단
-            }
-          }
-        }
-        
-        console.log(`[DEBUG] 최종 이미지 개수: ${imageFiles.length}`);
-        console.log(`[DEBUG] 이미지 목록:`, imageFiles);
-        
-        if (imageFiles.length > 0) {
-          setExtractedImages(imageFiles);
-          
-          // 각 이미지에 대한 초기 방 이름 설정
-          const initialNames = {};
-          imageFiles.forEach((img, index) => {
-            initialNames[index] = '';
-          });
-          setRoomNames(initialNames);
-        } else {
-          // 파일이 없으면 빈 배열 설정
-          setExtractedImages([]);
-          setRoomNames({});
-        }
-      } catch (error) {
-        console.error('[ERROR] 이미지 로딩 오류:', error);
-        setExtractedImages([]);
-        setRoomNames({});
+
+        setExtractedImages(imageFiles);
+        const initialNames = {};
+        imageFiles.forEach((_, index) => {
+          initialNames[index] = "";
+        });
+        setRoomNames(initialNames);
+      } catch (err) {
+        console.error("[ERROR] 이미지 로딩 실패:", err);
       }
-      
+
       setLoading(false);
     };
-    
+
     loadImages();
   }, []);
   
