@@ -11,7 +11,7 @@ def run(script, args=None):
 
     result = subprocess.run(command, capture_output=True, text=True)
     if result.returncode != 0:
-        print(f"[❌ ERROR] {script} failed:")
+        print(f"[ERROR] {script} failed:")
         print(result.stdout)
         print(result.stderr)
         raise subprocess.CalledProcessError(result.returncode, script_path)
