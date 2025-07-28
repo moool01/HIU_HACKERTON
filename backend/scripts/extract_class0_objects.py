@@ -3,6 +3,12 @@ import cv2
 import shutil
 
 def parse_yolo_labels(label_file_path):
+    """
+    YOLO 라벨 파일에서 클래스 0 객체 좌표를 추출
+
+    Returns:
+        list: [(x_center, y_center, width, height), ...]
+    """
     class0_objects = []
 
     if not os.path.exists(label_file_path):
@@ -36,7 +42,6 @@ def equi_to_original_coords(equi_x, equi_y, equi_width, equi_height, orig_width,
     pad = (new_h - orig_height) // 2
     orig_x = equi_x
     orig_y = equi_y - pad
-    orig_y = max(0, orig_y)
     return orig_x, orig_y
 
 def crop_and_save_objects_with_reverse_transform(image_path, class0_objects, output_dir, equi_image_path):
@@ -64,19 +69,17 @@ def crop_and_save_objects_with_reverse_transform(image_path, class0_objects, out
         ox1, oy1 = equi_to_original_coords(x1, y1, equi_w, equi_h, orig_w, orig_h)
         ox2, oy2 = equi_to_original_coords(x2, y2, equi_w, equi_h, orig_w, orig_h)
 
-        ox1 = max(0, int(ox1))
-        oy1 = max(0, int(oy1))
-        ox2 = min(orig_w, int(ox2))
-        oy2 = min(orig_h, int(oy2))
+        ox1 = max(0, ox1)
+        oy1 = max(0, oy1)
+        ox2 = min(orig_w, ox2)
+        oy2 = min(orig_h, oy2)
 
         if ox2 > ox1 and oy2 > oy1:
-            crop = orig_image[oy1:oy2, ox1:ox2]
+            crop = orig_image[int(oy1):int(oy2), int(ox1):int(ox2)]
 
-            if crop.size == 0:
-                print(f"[SKIP] 잘림 결과 이미지가 비어 있습니다. index: {i}")
-                continue
-
+            # ✅ 크기 고정: 너비 200, 높이 300
             resized_crop = cv2.resize(crop, (200, 300), interpolation=cv2.INTER_AREA)
+
             out_path = os.path.join(output_dir, f"class0_object_{i+1}_from_original.jpg")
             cv2.imwrite(out_path, resized_crop)
             print(f"[SAVED] {out_path}")
@@ -84,7 +87,10 @@ def crop_and_save_objects_with_reverse_transform(image_path, class0_objects, out
             print(f"[WARNING] 잘못된 바운딩 박스: {ox1},{oy1},{ox2},{oy2}")
 
 def move_images_to_session_dir(output_dir, session_dir, session_id):
-    target_dir = os.path.join("frontend", "public", "images", "room", session_id)
+    """
+    extracted_class0_objects 안의 이미지들을 frontend/public/images/거실문/{session_id}/ 로 이동
+    """
+    target_dir = os.path.join("frontend", "public", "images", "room_door", session_id)
     os.makedirs(target_dir, exist_ok=True)
 
     moved_files = []
@@ -95,17 +101,22 @@ def move_images_to_session_dir(output_dir, session_dir, session_id):
             dst = os.path.join(target_dir, dst_name)
             shutil.move(src, dst)
             moved_files.append(dst_name)
-            print(f"[MOVE] {fname} → room/{session_id}/{dst_name}")
+            print(f"[MOVE] {fname} → room_door/{session_id}/{dst_name}")
 
     return moved_files
 
 def run_object_extraction(session_dir):
+    """
+    전체 실행 파이프라인 함수. session_dir은 room1까지 포함된 경로여야 함.
+    """
     label_file = os.path.join(session_dir, "yolo_output", "labels", "result_equi.txt")
     orig_img = os.path.join(session_dir, "result_image.jpg")
     equi_img = os.path.join(session_dir, "result_equi.jpg")
     output_dir = os.path.join(session_dir, "extracted_class0_objects")
 
     print(f"[INFO] 세션 디렉토리: {session_dir}")
+
+    # ✅ session_id 추출
     session_id = os.path.basename(os.path.dirname(session_dir))
 
     objects = parse_yolo_labels(label_file)
@@ -119,5 +130,21 @@ def run_object_extraction(session_dir):
         "success": True,
         "message": f"{len(moved)}개 객체 저장 완료",
         "files": moved,
-        "output_path": os.path.join("frontend", "public", "images", "room", session_id)
+        "output_path": os.path.join("frontend", "public", "images", "room_door", session_id)
     }
+
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) < 2:
+        print("Usage: python extract_class0_objects.py <session_dir>")
+        sys.exit(1)
+
+    session_dir = sys.argv[1]
+    if not os.path.isdir(session_dir):
+        print(f"[ERROR] 세션 디렉토리가 존재하지 않습니다: {session_dir}")
+        sys.exit(1)
+
+    result = run_object_extraction(session_dir)
+    print("[PIPELINE] 결과:")
+    print(result)

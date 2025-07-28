@@ -388,7 +388,7 @@ const Step024 = () => {
       setLoading(true);
 
       try {
-        const imageBasePath = `/images/room/${sid}/`;
+        const imageBasePath = `/images/door_room/${sid}/`;
         const imageFiles = [];
         const timestamp = Date.now();
 
