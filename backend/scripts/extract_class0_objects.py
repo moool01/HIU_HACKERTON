@@ -87,10 +87,17 @@ def crop_and_save_objects_with_reverse_transform(image_path, class0_objects, out
             print(f"[WARNING] 잘못된 바운딩 박스: {ox1},{oy1},{ox2},{oy2}")
 
 def move_images_to_session_dir(output_dir, session_dir, session_id):
-    """
-    extracted_class0_objects 안의 이미지들을 frontend/public/images/거실문/{session_id}/ 로 이동
-    """
-    target_dir = os.path.join("frontend", "public", "images", "door_room", session_id)
+    target_dir = os.path.join("frontend", "public", "images", "room", session_id)
+
+    # ✅ 기존 파일 삭제
+    if os.path.exists(target_dir):
+        for file in os.listdir(target_dir):
+            file_path = os.path.join(target_dir, file)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+                print(f"[DELETE] 기존 파일 삭제됨: {file_path}")
+
+    # 디렉토리 생성 (없을 경우만)
     os.makedirs(target_dir, exist_ok=True)
 
     moved_files = []
@@ -101,7 +108,7 @@ def move_images_to_session_dir(output_dir, session_dir, session_id):
             dst = os.path.join(target_dir, dst_name)
             shutil.move(src, dst)
             moved_files.append(dst_name)
-            print(f"[MOVE] {fname} → door_room/{session_id}/{dst_name}")
+            print(f"[MOVE] {fname} → room/{session_id}/{dst_name}")
 
     return moved_files
 

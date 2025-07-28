@@ -1,19 +1,25 @@
 import os
 import cv2
 import sys
+import shutil
 
 def extract_frames_from_video(video_path, output_dir, interval=30):
     print(f"[EXTRACT] Input: {video_path}")
     print(f"[EXTRACT] Output dir: {output_dir}")
     print(f"[EXTRACT] Interval: {interval}")
 
-    cap = cv2.VideoCapture(video_path)
+    # ✅ 기존 프레임 디렉토리 삭제
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+        print(f"[CLEANUP] 기존 프레임 디렉토리 삭제됨: {output_dir}")
 
+    os.makedirs(output_dir, exist_ok=True)
+
+    cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         print(f"[ERROR] Failed to open video: {video_path}")
         sys.exit(1)
 
-    os.makedirs(output_dir, exist_ok=True)
     frame_index = 0
     saved_count = 0
 
