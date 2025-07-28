@@ -1,6 +1,7 @@
 import os
 import cv2
 import json
+import shutil
 
 SRC = os.environ.get("PIPELINE_STITCH_RESULT", "./viewer/result_image.jpg")
 DST = os.environ.get("PIPELINE_EQUI_RESULT", "./viewer/result_equi.jpg")
@@ -11,15 +12,28 @@ if img is None:
     exit(1)
 
 h, w = img.shape[:2]
-new_h = w // 2
-pad = (new_h - h) // 2  # ✅ 수정된 부분
-if pad < 0:
-    print(f"[ERROR] 이미지가 이미 2:1 이상 비율입니다.")
-    exit(1)
+aspect_ratio = w / h
+target_ratio = 2.0
+new_h = int(w / target_ratio)
+pad = (new_h - h) // 2
 
-pano2 = cv2.copyMakeBorder(img, pad, new_h - h - pad, 0, 0, cv2.BORDER_CONSTANT, value=(0, 0, 0))
-cv2.imwrite(DST, pano2)
-print('[√] 2:1 변환 완료 →', DST)
+# ✅ 음수 padding 방지 및 안전 처리
+if aspect_ratio >= target_ratio or pad <= 0:
+    print(f"[INFO] 이미지가 이미 2:1 이상입니다. 그대로 저장.")
+    shutil.copy(SRC, DST)
+else:
+    print(f"[INFO] 상하단 padding 추가 → 총 padding: {new_h - h}px")
+    padded_img = cv2.copyMakeBorder(
+        img,
+        top=pad,
+        bottom=new_h - h - pad,
+        left=0,
+        right=0,
+        borderType=cv2.BORDER_CONSTANT,
+        value=(0, 0, 0)
+    )
+    cv2.imwrite(DST, padded_img)
+    print('[√] 2:1 비율 맞춤 완료 →', DST)
 
 # JSON 생성
 result_json_path = DST.replace(".jpg", ".json")
@@ -32,5 +46,3 @@ with open(result_json_path, "w") as f:
     json.dump(result_data, f, indent=2)
 
 print(f"[√] JSON 생성 완료 → {result_json_path}")
-print(f"[DEBUG] SRC: {SRC}")
-print(f"[DEBUG] DST: {DST}")

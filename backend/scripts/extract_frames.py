@@ -22,6 +22,12 @@ def extract_frames_from_video(video_path, output_dir, interval=30):
         if not ret:
             break
 
+        # ✅ 가로형 영상이면 세로로 회전 처리
+        h, w = frame.shape[:2]
+        if w > h:
+            print(f"[INFO] 가로형 프레임 감지됨 → 세로로 회전")
+            frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+
         if frame_index % interval == 0:
             frame_filename = f"{frame_index:05d}.jpg"
             frame_path = os.path.join(output_dir, frame_filename)

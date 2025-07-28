@@ -1,8 +1,9 @@
-import React, { useEffect, useState,useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { css } from '@emotion/css';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
-const SESSION_ID = 'session_' + new Date().toISOString().replace(/[-:.]/g, '').slice(0, 14);
+import { getOrCreateSessionId } from '../utils/session';
+
 // 방별 색상
 const ROOM_COLORS = {
   room1: '#FFBEBE',
@@ -261,7 +262,6 @@ const GRID_WIDTH = 20;
 const GRID_HEIGHT = 10;
 
 function getRoomRects(roomMap) {
-  // { room1: [ [x,y], ... ] }
   const roomRects = {};
   for (const key in roomMap) {
     const type = roomMap[key];
@@ -270,7 +270,6 @@ function getRoomRects(roomMap) {
     const [x, y] = key.split(',').map(Number);
     roomRects[type].push([x, y]);
   }
-  // { room1: {minX, maxX, minY, maxY, center: [x,y]}}
   const result = {};
   for (const type in roomRects) {
     const coords = roomRects[type];
@@ -280,7 +279,6 @@ function getRoomRects(roomMap) {
     const maxX = Math.max(...xs);
     const minY = Math.min(...ys);
     const maxY = Math.max(...ys);
-    // 중심 좌표
     const centerX = Math.round(xs.reduce((a, b) => a + b, 0) / xs.length);
     const centerY = Math.round(ys.reduce((a, b) => a + b, 0) / ys.length);
     result[type] = { minX, maxX, minY, maxY, center: [centerX, centerY] };
@@ -290,57 +288,32 @@ function getRoomRects(roomMap) {
 
 const HouseStep3 = () => {
   const navigate = useNavigate();
+  const [sessionId] = useState(() => getOrCreateSessionId());
   const [roomMap, setRoomMap] = useState({});
   const [roomNames, setRoomNames] = useState({});
   const [roomImages, setRoomImages] = useState({});
   const [tempNames, setTempNames] = useState({});
-  const [sessionId] = useState(() => {
-  const stored = localStorage.getItem('session_id');
-    if (stored) return stored;
 
-    const newId = 'session_' + new Date().toISOString().replace(/[-:.]/g, '').slice(0, 8) + '_' + Math.random().toString(36).slice(2, 8);
-    localStorage.setItem('session_id', newId);
-    return newId;
-  });
   useEffect(() => {
     const saved = localStorage.getItem('roomMap');
     let parsed = {};
-
     if (saved) {
       parsed = JSON.parse(saved);
     } else {
-      // 테스트용 기본 데이터 설정
       parsed = {
-        '2,2': 'room1',
-        '3,2': 'room1',
-        '4,2': 'room1',
-        '2,3': 'room1',
-        '3,3': 'room1',
-        '4,3': 'room1',
-        '6,2': 'room2',
-        '7,2': 'room2',
-        '6,3': 'room2',
-        '7,3': 'room2',
-        '2,5': 'room3',
-        '3,5': 'room3',
-        '4,5': 'room3',
-        '2,6': 'room3',
-        '3,6': 'room3',
-        '4,6': 'room3',
-        '6,5': 'room4',
-        '7,5': 'room4',
-        '6,6': 'room4',
-        '7,6': 'room4',
+        '2,2': 'room1', '3,2': 'room1', '4,2': 'room1',
+        '2,3': 'room1', '3,3': 'room1', '4,3': 'room1',
+        '6,2': 'room2', '7,2': 'room2', '6,3': 'room2', '7,3': 'room2',
+        '2,5': 'room3', '3,5': 'room3', '4,5': 'room3',
+        '2,6': 'room3', '3,6': 'room3', '4,6': 'room3',
+        '6,5': 'room4', '7,5': 'room4', '6,6': 'room4', '7,6': 'room4',
       };
     }
-
     setRoomMap(parsed);
-
-    // 이름 기본값 - 빈 상태로 시작
     const names = {};
     Object.values(parsed).forEach((type) => {
       if (type.startsWith('room') && !names[type]) {
-        names[type] = ''; // 빈 문자열로 초기화
+        names[type] = '';
       }
     });
     setRoomNames(names);
@@ -348,19 +321,11 @@ const HouseStep3 = () => {
   }, []);
 
   const handleNameChange = (type, newName) => {
-    setRoomNames((prev) => ({
-      ...prev,
-      [type]: newName,
-    }));
+    setRoomNames((prev) => ({ ...prev, [type]: newName }));
   };
-
   const handleTempNameChange = (type, tempName) => {
-    setTempNames((prev) => ({
-      ...prev,
-      [type]: tempName,
-    }));
+    setTempNames((prev) => ({ ...prev, [type]: tempName }));
   };
-
   const handleNameSave = (type) => {
     const tempName = tempNames[type];
     if (tempName && tempName.trim()) {
@@ -370,27 +335,18 @@ const HouseStep3 = () => {
 
   const handleImageUpload = async (type, file) => {
     if (!file) return;
-
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('roomType', type); // 'room1', 'room2' 등
-    formData.append('sessionId', sessionId); // 🔥 이미 선언된 sessionId 사용
-
+    formData.append('roomType', type);
+    formData.append('sessionId', sessionId);
     try {
       const response = await axios.post(
-        'http://192.168.0.70:5050/api/upload',
+        `${process.env.REACT_APP_API_URL}/api/upload`,
         formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
+        { headers: { 'Content-Type': 'multipart/form-data' } }
       );
-
       const result = response.data;
-
       if (response.status === 200 && result.success) {
-        console.log('[✅ 업로드 성공]', result);
         setRoomImages((prev) => ({
           ...prev,
           [type]: {
@@ -402,16 +358,13 @@ const HouseStep3 = () => {
         }));
         alert(`${type} 파일 업로드 및 처리 완료!`);
       } else {
-        console.error('[❌ 업로드 실패]', result);
         alert('업로드 실패: ' + (result?.error || JSON.stringify(result)));
       }
     } catch (err) {
-      console.error('[❌ 네트워크 오류]', err);
       alert('서버 연결 중 오류 발생: ' + err.message);
     }
   };
 
-  // 방별 사각형 정보
   const roomRects = getRoomRects(roomMap);
 
   // 격자 렌더링
