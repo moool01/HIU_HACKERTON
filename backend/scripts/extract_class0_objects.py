@@ -84,18 +84,18 @@ def crop_and_save_objects_with_reverse_transform(image_path, class0_objects, out
             print(f"[WARNING] 잘못된 바운딩 박스: {ox1},{oy1},{ox2},{oy2}")
 
 def move_images_to_session_dir(output_dir, session_dir, session_id):
-    target_dir = os.path.join("frontend", "public", "images", "거실문", session_id)
+    target_dir = os.path.join("frontend", "public", "images", "room", session_id)
     os.makedirs(target_dir, exist_ok=True)
 
     moved_files = []
     for i, fname in enumerate(sorted(os.listdir(output_dir))):
         if fname.endswith("_from_original.jpg"):
             src = os.path.join(output_dir, fname)
-            dst_name = f"문{i+1}.jpg"
+            dst_name = f"door{i+1}.jpg"
             dst = os.path.join(target_dir, dst_name)
             shutil.move(src, dst)
             moved_files.append(dst_name)
-            print(f"[MOVE] {fname} → 거실문/{session_id}/{dst_name}")
+            print(f"[MOVE] {fname} → room/{session_id}/{dst_name}")
 
     return moved_files
 
@@ -119,5 +119,5 @@ def run_object_extraction(session_dir):
         "success": True,
         "message": f"{len(moved)}개 객체 저장 완료",
         "files": moved,
-        "output_path": os.path.join("frontend", "public", "images", "거실문", session_id)
+        "output_path": os.path.join("frontend", "public", "images", "room", session_id)
     }

@@ -388,14 +388,14 @@ const Step024 = () => {
       setLoading(true);
 
       try {
-        const imageBasePath = `/images/거실문/${sid}/`;
+        const imageBasePath = `/images/room/${sid}/`;
         const imageFiles = [];
         const timestamp = Date.now();
 
         // 최대 10개 이미지까지 탐색
         for (let i = 1; i <= 10; i++) {
-          const imagePath = `${imageBasePath}문${i}.jpg?cache=${timestamp}`;
-          const cleanPath = `${imageBasePath}문${i}.jpg`;
+          const imagePath = `${imageBasePath}door${i}.jpg?cache=${timestamp}`;
+          const cleanPath = `${imageBasePath}door${i}.jpg`;
 
           try {
             const response = await fetch(imagePath, {
@@ -490,7 +490,7 @@ const Step024 = () => {
               <div key={index} className={styles.image18Parent}>
                 <img 
                   className={styles.image18Icon} 
-                  alt={`문 ${index + 1}`} 
+                  alt={`door ${index + 1}`} 
                   src={imageUrl}
                 />
                 <input
