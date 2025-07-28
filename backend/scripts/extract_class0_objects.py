@@ -90,7 +90,7 @@ def move_images_to_session_dir(output_dir, session_dir, session_id):
     """
     extracted_class0_objects 안의 이미지들을 frontend/public/images/거실문/{session_id}/ 로 이동
     """
-    target_dir = os.path.join("frontend", "public", "images", "room_door", session_id)
+    target_dir = os.path.join("frontend", "public", "images", "door_room", session_id)
     os.makedirs(target_dir, exist_ok=True)
 
     moved_files = []
@@ -101,7 +101,7 @@ def move_images_to_session_dir(output_dir, session_dir, session_id):
             dst = os.path.join(target_dir, dst_name)
             shutil.move(src, dst)
             moved_files.append(dst_name)
-            print(f"[MOVE] {fname} → room_door/{session_id}/{dst_name}")
+            print(f"[MOVE] {fname} → door_room/{session_id}/{dst_name}")
 
     return moved_files
 
@@ -130,7 +130,7 @@ def run_object_extraction(session_dir):
         "success": True,
         "message": f"{len(moved)}개 객체 저장 완료",
         "files": moved,
-        "output_path": os.path.join("frontend", "public", "images", "room_door", session_id)
+        "output_path": os.path.join("frontend", "public", "images", "door_room", session_id)
     }
 
 if __name__ == "__main__":
