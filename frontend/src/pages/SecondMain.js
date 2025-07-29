@@ -6,23 +6,23 @@ import { useNavigate } from "react-router-dom";
 
 
 const Component1 = () => {
-  const navigate = useNavigate();
+const navigate = useNavigate();
 
-  // ✅ 콘센트 훈련 완료 상태
-  const [isPlugTrained, setIsPlugTrained] = useState(false);
+// ✅ 콘센트 훈련 완료 상태
+const [isPlugTrained, setIsPlugTrained] = useState(false);
 
-  // ✅ 페이지가 로드되었을 때 localStorage에서 상태 불러오기
-  useEffect(() => {
-    const trained = localStorage.getItem("plugTrained");
-    setIsPlugTrained(trained === "true");
-    // localStorage.removeItem("plugTrained");
-    // setIsPlugTrained(false);
-  }, []);
+// ✅ 페이지가 로드되었을 때 localStorage에서 상태 불러오기
+useEffect(() => {
+const trained = localStorage.getItem("plugTrained");
+setIsPlugTrained(trained === "true");
+// localStorage.removeItem("plugTrained");
+// setIsPlugTrained(false);
+}, []);
 
-  // ✅ 훈련하기 버튼 클릭 시 상태 저장은 여기서 하지 않음
-  const Scenario01 = () => {
-    navigate("/scenario01");
-  };
+// ✅ 훈련하기 버튼 클릭 시 상태 저장은 여기서 하지 않음
+const Scenario01 = () => {
+navigate("/scenario01");
+};
 
 return (
 <div className={css`width: 100%;
@@ -393,39 +393,39 @@ background-position: top;
 `}>
 <div className={css`width: 281px; height: 434px; display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between;`}>
 
-          {/* 뱃지 이미지 변경 부분 */}
-          <div className={css`width: 80.3px; height: 80.3px;`}>
-            <div className={css`width: 100%; height: 83.4px; transform: rotate(-90deg); transform-origin: 0 0; position: relative;`}>
-              <div className={css`
-                position: absolute;
-                top: 21.4px;
-                left: 2.68px;
-                border-radius: 50%;
-                background: conic-gradient(from 180deg at 50% 50%, #6b2a1a 0deg, #363d47 248.58deg, #6b2a1a 360deg, #363d47 608.58deg);
-                border: 0.6px solid #0f1114;
-                box-sizing: border-box;
-                width: 78.9px;
-                height: 78.9px;
-              `} />
-              <img
-                className={css`
-                  position: absolute;
-                  top: 5px;
-                  left: -80px;
-                  width: 75px;
-                  height: 80px;
-                  object-fit: cover;
-                  transform: rotate(90deg);
-                `}
-                alt=""
-                src={
-                  isPlugTrained
-                    ? "/images/뱃지/콘센트뱃지획득.png"
-                    : "/images/뱃지/콘센트뱃지미획득.png"
-                }
-              />
-            </div>
-          </div>
+{/* 뱃지 이미지 변경 부분 */}
+<div className={css`width: 80.3px; height: 80.3px;`}>
+<div className={css`width: 100%; height: 83.4px; transform: rotate(-90deg); transform-origin: 0 0; position: relative;`}>
+<div className={css`
+position: absolute;
+top: 21.4px;
+left: 2.68px;
+border-radius: 50%;
+background: conic-gradient(from 180deg at 50% 50%, #6b2a1a 0deg, #363d47 248.58deg, #6b2a1a 360deg, #363d47 608.58deg);
+border: 0.6px solid #0f1114;
+box-sizing: border-box;
+width: 78.9px;
+height: 78.9px;
+`} />
+<img
+className={css`
+position: absolute;
+top: 5px;
+left: -80px;
+width: 75px;
+height: 80px;
+object-fit: cover;
+transform: rotate(90deg);
+`}
+alt=""
+src={
+isPlugTrained
+? "/images/뱃지/콘센트뱃지획득.png"
+: "/images/뱃지/콘센트뱃지미획득.png"
+}
+/>
+</div>
+</div>
 <div className={css`align-self: stretch;
 display: flex;
 flex-direction: column;
@@ -472,23 +472,23 @@ font-weight: 500;
 </div>
 </div>
 <div
-              className={css`
-                border-radius: 999px;
-                background-color: #cd610f;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 8px 24px;
-                font-size: 18px;
-                cursor: pointer;
-              `}
-              onClick={Scenario01}
-            >
-              <div className={css`font-weight: 600;`}>훈련하기</div>
-            </div>
-          </div>
-        </div>
-      </div>
+className={css`
+border-radius: 999px;
+background-color: #cd610f;
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 8px 24px;
+font-size: 18px;
+cursor: pointer;
+`}
+onClick={Scenario01}
+>
+<div className={css`font-weight: 600;`}>훈련하기</div>
+</div>
+</div>
+</div>
+</div>
 <div className={css`width: 351px;
 height: 526px;
 overflow: hidden;
@@ -499,7 +499,7 @@ align-items: flex-start;
 justify-content: center;
 padding: 46px 35px;
 box-sizing: border-box;
-background-image: url('/images/시나리오/콘텐츠사진/외부화재.png');
+background-image: url('/images/시나리오/콘텐츠사진/선풍기화재.png');
 background-size: cover;
 background-repeat: no-repeat;
 background-position: top;
@@ -541,7 +541,7 @@ width: 75px;
 height: 80px;
 object-fit: cover;
 transform: rotate(90deg);
-`} alt="" src="/images/뱃지/화재안내방송뱃지미획득.png" />
+`} alt="" src="/images/뱃지/선풍기뱃지미획득.png" />
 </div>
 </div>
 <div className={css`align-self: stretch;
@@ -613,7 +613,7 @@ align-items: flex-start;
 justify-content: center;
 padding: 46px 35px;
 box-sizing: border-box;
-background-image: url('/images/시나리오/콘텐츠사진/가스레인지화재.png');
+background-image: url('/images/시나리오/콘텐츠사진/외부화재.png');
 background-size: cover;
 background-repeat: no-repeat;
 background-position: top;
@@ -655,7 +655,7 @@ width: 75px;
 height: 80px;
 object-fit: cover;
 transform: rotate(90deg);
-`} alt="" src="/images/뱃지/가스레인지뱃지미획득.png" />
+`} alt="" src="/images/뱃지/화재안내방송뱃지미획득.png" />
 </div>
 </div>
 <div className={css`align-self: stretch;
@@ -732,7 +732,7 @@ align-items: flex-start;
 justify-content: center;
 padding: 46px 35px;
 box-sizing: border-box;
-background-image: url('/images/시나리오/콘텐츠사진/선풍기화재.png');
+background-image: url('/images/시나리오/콘텐츠사진/가스레인지화재.png');
 background-size: cover;
 background-repeat: no-repeat;
 background-position: top;
