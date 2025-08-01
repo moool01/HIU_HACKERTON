@@ -87,7 +87,7 @@ def crop_and_save_objects_with_reverse_transform(image_path, class0_objects, out
             print(f"[WARNING] 잘못된 바운딩 박스: {ox1},{oy1},{ox2},{oy2}")
 
 def move_images_to_session_dir(output_dir, session_dir, session_id):
-    target_dir = os.path.join("frontend", "public", "images", "room", session_id)
+    target_dir = os.path.join("frontend", "public", "images", "door_room", session_id)
 
     # ✅ 기존 파일 삭제
     if os.path.exists(target_dir):
@@ -108,7 +108,7 @@ def move_images_to_session_dir(output_dir, session_dir, session_id):
             dst = os.path.join(target_dir, dst_name)
             shutil.move(src, dst)
             moved_files.append(dst_name)
-            print(f"[MOVE] {fname} → room/{session_id}/{dst_name}")
+            print(f"[MOVE] {fname} → door_room/{session_id}/{dst_name}")
 
     return moved_files
 
