@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
+import shutil
 import os
 import subprocess
 import traceback
@@ -19,36 +20,45 @@ os.makedirs(BACKEND_UPLOAD_DIR, exist_ok=True)
 @app.route('/api/upload', methods=['POST'])
 def upload_and_process():
     try:
+        # 0. 기본 파라미터 수집
         file = request.files.get('file')
         room_type = request.form.get('roomType', 'room')
-        session_id = request.form.get('sessionId')  # ✅ 수정된 부분
+        session_id = request.form.get('sessionId')
 
         if not file:
             return jsonify(success=False, error='파일이 없습니다.'), 400
 
+        # 1. 세션 ID 생성 또는 유지
         if not session_id:
             date_str = datetime.now().strftime('%Y%m%d')
             session_id = f"session_{date_str}_{uuid.uuid4().hex[:6]}"
-
         print(f"[INFO] 사용 중인 session_id: {session_id}")
 
-        # 1. 방 디렉토리 생성
-        room_dir = os.path.join(BACKEND_UPLOAD_DIR, session_id, room_type)
+        # 2. 세션 디렉토리 경로 설정
+        session_dir = os.path.join(BACKEND_UPLOAD_DIR, session_id)
+
+        # ✅ 기존 세션 디렉토리 삭제
+        if os.path.exists(session_dir):
+            shutil.rmtree(session_dir)
+            print(f"[RESET] 기존 세션 디렉토리 삭제됨: {session_dir}")
+
+        # 3. room 디렉토리 생성
+        room_dir = os.path.join(session_dir, room_type)
         os.makedirs(room_dir, exist_ok=True)
 
-        # 2. 파일 저장
+        # 4. 파일 저장
         filename = secure_filename(file.filename)
         video_path = os.path.join(room_dir, filename)
         file.save(video_path)
         print(f"[UPLOAD] 저장된 비디오: {video_path}")
 
-        # 3. 처리에 필요한 경로
+        # 5. 파이프라인 경로 설정
         frame_dir_abs = os.path.abspath(os.path.join(room_dir, 'frames'))
         stitched_path = os.path.abspath(os.path.join(room_dir, 'result_image.jpg'))
         equi_path = stitched_path.replace('result_image.jpg', 'result_equi.jpg')
         yolo_out = os.path.abspath(os.path.join(room_dir, 'yolo_output'))
 
-        # 4. 환경변수 설정
+        # 6. 환경 변수 설정
         env = os.environ.copy()
         env["PIPELINE_INPUT_VIDEO"] = os.path.abspath(video_path)
         env["PIPELINE_FRAME_DIR"] = frame_dir_abs
@@ -56,9 +66,10 @@ def upload_and_process():
         env["PIPELINE_EQUI_RESULT"] = equi_path
         env["YOLO_MODEL_PATH"] = os.path.abspath("best_250723.pt")
         env["YOLO_OUTPUT_DIR"] = yolo_out
+        env["PIPELINE_SESSION_DIR"] = os.path.abspath(session_dir)  # 👈 추가됨
         env["FRAME_INTERVAL"] = "30"
 
-        # 5. 파이프라인 실행
+        # 7. 파이프라인 실행
         pipeline_path = os.path.abspath("backend/run_pipeline.py")
         print(f"[RUN] 파이프라인 시작: {pipeline_path}")
         result = subprocess.run(
