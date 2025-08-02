@@ -5,7 +5,7 @@ import subprocess
 import traceback
 from werkzeug.utils import secure_filename
 from datetime import datetime
-import uuid
+import uuid, shutil
 
 # ⚠️ static_folder는 Docker 기준에서 절대 경로로 지정
 FRONTEND_BUILD_PATH = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'build')
@@ -32,8 +32,15 @@ def upload_and_process():
 
         print(f"[INFO] 사용 중인 session_id: {session_id}")
 
-        # 1. 방 디렉토리 생성
+
+        # 1. 방 디렉토리 설정 및 정리
         room_dir = os.path.join(BACKEND_UPLOAD_DIR, session_id, room_type)
+
+        # ✅ 해당 방 디렉토리가 존재하면 삭제 후 생성
+        if os.path.exists(room_dir):
+            shutil.rmtree(room_dir)
+            print(f"[RESET] 기존 {room_type} 디렉토리 삭제됨: {room_dir}")
+
         os.makedirs(room_dir, exist_ok=True)
 
         # 2. 파일 저장
